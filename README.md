@@ -21,10 +21,15 @@
 
 1. Clone o repositório
 2. Instale as dependências PHP
-3. Configure o banco de dados
-4. Importe o arquivo do BD
-
+3. Importe o arquivo do BD (db_xmx.sql)
+4. Configure a conexão do banco de dados no .env
+4. 1.   DB_CONNECTION=mysql
+        DB_HOST=127.0.0.1
+        DB_PORT=3306
+        DB_DATABASE=db_xmx
+        DB_USERNAME=root
+        DB_PASSWORD=
 
 ## Video de apresentação
 
-https://www.loom.com/share/d69df19e0f364e259f8e25475bd84940?sid=dc72a611-de9c-4a4e-be2a-0654a3063f63
+https://www.loom.com/share/588a8bd3621e497e92c4f1bc5e00c8cc?sid=cf222469-2b7c-4250-af1e-fff4ce3422ac

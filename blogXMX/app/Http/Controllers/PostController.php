@@ -2,78 +2,45 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Comment;
 use App\Models\Post;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Http;
-
+use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
     // Página inicial com listagem de posts
     public function index()
     {
-        $response = Http::get('https://dummyjson.com/posts');
+        $posts = Post::with('tags')
+            ->withCount(['likes', 'dislikes', 'comments'])
+            ->paginate(30);
 
-        if ($response->successful()) {
-            $data = $response->json()['posts'];
+        // echo '<pre>';
+        // foreach ($posts as $post){
 
-            // Converte recursivamente cada post para objeto (inclusive arrays aninhados)
-            $objects = collect($data)->map(function ($item) {
-                return json_decode(json_encode($item));
-            });
-
-            // Paginação manual
-            $currentPage = request()->get('page', 1);
-            $perPage = 10;
-            $currentPageItems = $objects->slice(($currentPage - 1) * $perPage, $perPage)->values();
-
-            $posts = new LengthAwarePaginator(
-                $currentPageItems,
-                $objects->count(),
-                $perPage,
-                $currentPage,
-                ['path' => request()->url(), 'query' => request()->query()]
-            );
-
-            return view('welcome', compact('posts'));
-        }
-
-        return view('welcome')->withErrors('Não foi possível obter os posts da API.');
+        //     var_dump($posts);
+        // }
+        // die();
+        return view('welcome', compact('posts'));
     }
 
 
     public function details($id)
     {
-        // Buscar o post
-        $postResponse = Http::get("https://dummyjson.com/posts/{$id}");
-        if (!$postResponse->successful()) {
-            abort(404, 'Post não encontrado.');
-        }
-        $post = json_decode(json_encode($postResponse->json()));
+        $post = Post::withCount(['likes', 'dislikes', 'comments'])
+            ->with(['comments.user']) // Aqui carrega os users de cada comment
+            ->findOrFail($id);
 
-        // Buscar comentários (filtar por postId)
-        $commentsResponse = Http::get("https://dummyjson.com/comments");
-        $comments = [];
-        if ($commentsResponse->successful()) {
-            $allComments = $commentsResponse->json()['comments'];
+        // echo '<pre>';
+        // foreach ($post->comments as $comment) {
 
-            // Filtra comentários deste post
-            $filteredComments = collect($allComments)
-                ->where('postId', $id)
-                ->values();
-
-            // Converte para objeto para a view
-            $comments = $filteredComments->map(function ($comment) {
-                return json_decode(json_encode($comment));
-            });
-        }
-
-        // Anexa os comentários ao post
-        $post->comments = $comments;
-
+        //    echo $comment->body . ' - Autor: ' . $comment->user->firstName . "\n";
+        // }
+        // die();
 
         return view('postView', compact('post'));
     }
+
 
 
 
@@ -89,6 +56,35 @@ class PostController extends Controller
 
         return redirect()->back();
     }
+
+
+    // Função para curtir um post
+    public function addComment(Request $request)
+    {
+        // echo '<pre>';
+        // var_dump($request['content']);
+        // die();
+        Comment::create([
+            'body' => $request['body'],
+            'likes'   => 1,
+            'post_id' => $request['post_id'],
+            'user_id' => 3,
+        ]);
+
+        return back()->with('success', 'Comentário adicionado com sucesso!');
+    }
+
+
+    public function comment_like($id)
+    {
+        $comment = Comment::findOrFail($id);
+
+        // Incrementa o campo 'likes' em +1
+        $comment->increment('likes');
+
+        return redirect()->back();
+    }
+
 
     // Função para dar dislike em um post
     public function dislike($id)

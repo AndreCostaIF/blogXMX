@@ -9,9 +9,12 @@ class Comment extends Model
 {
     use HasFactory;
     public $timestamps = false;
+        protected $fillable = ['likes']; // <-- Aqui
+
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+
 }

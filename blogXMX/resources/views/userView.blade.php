@@ -836,119 +836,62 @@
 </head>
 
 <body class="antialiased">
-    <div class="container mt-4">
+    <div class="container mt-5">
+        <h2>Perfil do Usuário</h2>
 
-        <div class="card mb-3">
-            <div class="card-body">
-                <!-- Título -->
-                <h3 class="card-title">
-                    {{-- <a href="{{ url('/post/' . $post->id) }}">{{ $post->title }}</a> --}}
-                    <h1 href="#" class="h3 fw-bold">{{ $post->title }}</h1>
-                </h3>
-
-                <!-- Tags -->
-                @if ($post->tags)
-                    <div class="mb-2 d-flex flex-wrap gap-1">
-                        @foreach (explode(',', $post->tags) as $tag)
-                            <span class="badge bg-primary">{{ trim($tag) }}</span>
-                        @endforeach
-                    </div>
-                @endif
-
-
-                <!-- CORPO -->
-                <h5 class="card-title">
-                    {{-- <a href="{{ url('/post/' . $post->id) }}">{{ $post->title }}</a> --}}
-                    <p>{{ $post->body }}</p>
-                </h5>
-
-                <!-- Botões de interação -->
-                <div class="d-flex align-items-center gap-3">
-                    <form action="{{ route('post.like', $post->id) }}" method="POST">
-                        @csrf
-                        <button class="btn btn-outline-success btn-sm" type="submit">
-                            👍 {{ $post->likes_count }}
-                        </button>
-                    </form>
-
-                    <form action="{{ route('post.dislike', $post->id) }}" method="POST">
-                        @csrf
-                        <button class="btn btn-outline-danger btn-sm" type="submit">
-                            👎 {{ $post->dislikes_count }}
-                        </button>
-                    </form>
-
+        <div class="card mb-4 p-3 shadow">
+            <div class="d-flex align-items-center gap-3">
+                <img src="{{ asset('storage/' . $user->image) }}" alt="Foto do usuário"
+                    style="width: 100px; height: 100px; object-fit: cover;" class="rounded-circle">
+                <div>
+                    <h2 class="fw-bold">{{ $user->firstName }} {{ $user->lastName }}</h2>
+                    <p><strong>Email:</strong> {{ $user->email }}</p>
+                    <p><strong>Telefone:</strong> {{ $user->phone }}</p>
+                    <p><strong>Data de nascimento:</strong>
+                        {{ \Carbon\Carbon::parse($user->birthDate)->format('d/m/Y') }}</p>
+                    <p><strong>Endereço:</strong> {{ $user->address }}</p>
                 </div>
-
-                <hr class="mt-3 mb-3">
-                <center>💬 {{ $post->comments_count }} Comentários </center>
-
-                {{-- Formulário para adicionar comentário --}}
-                <form action="{{ route('post.addComment') }}" method="POST" class="mt-3 mb-3">
-                    @csrf
-                    <input type="hidden" name="post_id" value="{{ $post->id }}">
-
-                    <div class="mb-2">
-                        <label for="content-{{ $post->id }}" class="form-label">Adicionar comentário:</label>
-                        <textarea class="form-control" name="body" id="body-{{ $post->id }}" rows="2" required></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary bg-primary btn-sm" disabled>Comentar</button>
-                </form>
-
-                <hr class="mt-3 mb-3">
-
-                <!-- COMETARIOS -->
-                @foreach ($post->comments as $comment)
-                    <div class="card mb-3 p-3 shadow-sm border-0">
-                        <div class="d-flex">
-                            <!-- Avatar -->
-                            <div class="me-3">
-                                <img src="{{ asset('storage/' . $comment->user->image) }}" alt="Foto do usuário"
-                                    class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
-                            </div>
-
-                            <!-- Conteúdo do comentário -->
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <!-- Nome do usuário -->
-                                    <a href="{{ route('userView', $comment->user->id) }}"
-                                        class="fw-bold text-decoration-none text-dark">{{ $comment->user->firstName . ' ' . $comment->user->lastName }}</a>
-
-                                    <!-- Data/hora -->
-                                    <small class="text-muted">Última atualização há 3 minutos</small>
-                                </div>
-
-                                <!-- Corpo do comentário -->
-                                <p class="mb-2">{{ $comment->body }}</p>
-
-                                <hr class="my-2">
-
-                                <!-- Botões de interação -->
-                                <div class="d-flex gap-2">
-                                    <form action="{{ route('comment.like', $comment->id) }}" method="POST">
-                                        @csrf
-                                        <button class="btn btn-sm btn-outline-success" type="submit">
-                                            👍 {{ $comment->likes }}
-                                        </button>
-                                    </form>
-
-                                    {{-- <form action="{{ route('post.dislike', $post->id) }}" method="POST">
-                                    @csrf
-                                    <button class="btn btn-sm btn-outline-danger" type="submit">
-                                        👎 {{ $post->dislikes_count }}
-                                    </button>
-                                </form> --}}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-
-
             </div>
         </div>
+        <hr class="mt-3 mb-3">
+        <h3 class="mb-2">Posts de {{ $user->firstName }}</h3>
 
+        @forelse ($user->posts as $post)
+            <div class="card mb-3 shadow">
+                <div class="card-body">
+                    <!-- Título -->
+                    <h5 class="card-title fw-bold">
+                        <a href="{{ url('/post/' . $post->id) }}">{{ $post->title }}</a>
+
+                    </h5>
+
+                    <!-- Tags -->
+                    @if ($post->tags)
+                        <div class="mb-2 d-flex flex-wrap gap-1">
+                            @foreach (explode(',', $post->tags) as $tag)
+                                <span class="badge bg-primary">{{ trim($tag) }}</span>
+                            @endforeach
+
+                        </div>
+                    @endif
+
+
+                    <!-- Botões de interação -->
+                    <div class="d-flex align-items-center gap-3">
+
+                        <span>
+                            👍 {{ $post->likes_count }}
+                        </span>
+
+                        <div>
+                            💬 {{ $post->comments_count }} comentários
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <p>Este usuário ainda não tem posts.</p>
+        @endforelse
     </div>
 </body>
 

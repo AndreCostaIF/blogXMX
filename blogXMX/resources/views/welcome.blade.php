@@ -851,9 +851,10 @@
                     <!-- Tags -->
                     @if ($post->tags)
                         <div class="mb-2 d-flex flex-wrap gap-1">
-                            @foreach ($post->tags as $tag)
-                                <span class="badge bg-primary">{{ $tag }}</span>
+                            @foreach (explode(',', $post->tags) as $tag)
+                                <span class="badge bg-primary">{{ trim($tag) }}</span>
                             @endforeach
+
                         </div>
                     @endif
 
@@ -863,19 +864,19 @@
                         <form action="{{ route('post.like', $post->id) }}" method="POST">
                             @csrf
                             <button class="btn btn-outline-success btn-sm" type="submit">
-                                👍 {{ $post->reactions->likes }}
+                                👍 {{ $post->likes_count }}
                             </button>
                         </form>
 
                         <form action="{{ route('post.dislike', $post->id) }}" method="POST">
                             @csrf
                             <button class="btn btn-outline-danger btn-sm" type="submit">
-                                👎 {{ $post->reactions->dislikes }}
+                                👎 {{ $post->count_dislikes }}
                             </button>
                         </form>
 
                         <div>
-                            💬 comentários
+                            💬 {{ $post->comments_count}} comentários
                         </div>
                     </div>
                 </div>
